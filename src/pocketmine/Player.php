@@ -2699,10 +2699,14 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 						case Item::FISHING_ROD:
 							$this->server->getPluginManager()->callEvent($ev = new PlayerUseFishingRodEvent($this, ($this->isFishing() ? PlayerUseFishingRodEvent::ACTION_STOP_FISHING : PlayerUseFishingRodEvent::ACTION_START_FISHING)));
 							if(!$ev->isCancelled()){
-								if(!$this->isFishing()){
+								if($this->isFishing()) {
+									$this->fishingHook->reelLine();
+									$this->setFishingHook();
+								} else {
 									$f = 0.6;
 									$entity = Entity::createEntity("FishingHook", $this->getLevel(), $nbt, $this);
 									$entity->setMotion($entity->getMotion()->multiply($f));
+									$entity->setRod($item);
 								}
 							}
 							$this->setFishingHook($entity);

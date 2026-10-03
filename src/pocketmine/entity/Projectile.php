@@ -1,26 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *  _   _    ____     ___
+ * | \ | |  / ___|  / ___|
+ * |  \| | | |  _  | |
+ * | |\  | | |_| | | |___
+ * |_| \_|  \____|  \____|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- * 
- *
-*/
+ * @author XinYueNeko
+ * @link https://github.com/NewmoomCat
+ */
 
 namespace pocketmine\entity;
-
 
 use pocketmine\event\entity\EntityCombustByEntityEvent;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
@@ -46,10 +44,6 @@ abstract class Projectile extends Entity {
 
 	/**
 	 * Projectile constructor.
-	 *
-	 * @param Level       $level
-	 * @param CompoundTag $nbt
-	 * @param Entity|null $shootingEntity
 	 */
 	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = null){
 		$this->shootingEntity = $shootingEntity;
@@ -60,8 +54,7 @@ abstract class Projectile extends Entity {
 	}
 
 	/**
-	 * @param float             $damage
-	 * @param EntityDamageEvent $source
+	 * @param float $damage
 	 *
 	 * @return bool|void
 	 */
@@ -83,12 +76,10 @@ abstract class Projectile extends Entity {
 	}
 
 	/**
-	 * @param Entity $entity
-	 *
 	 * @return bool
 	 */
 	public function canCollideWith(Entity $entity){
-		return $entity instanceof Living and !$this->onGround;
+		return $entity instanceof Living && !$this->onGround;
 	}
 
 	public function saveNBT(){
@@ -97,8 +88,6 @@ abstract class Projectile extends Entity {
 	}
 
 	/**
-	 * @param $currentTick
-	 *
 	 * @return bool
 	 */
 	public function onUpdate($currentTick){
@@ -106,9 +95,8 @@ abstract class Projectile extends Entity {
 			return false;
 		}
 
-
 		$tickDiff = $currentTick - $this->lastUpdate;
-		if($tickDiff <= 0 and !$this->justCreated){
+		if($tickDiff <= 0 && !$this->justCreated){
 			return true;
 		}
 		$this->lastUpdate = $currentTick;
@@ -132,7 +120,7 @@ abstract class Projectile extends Entity {
 
 			foreach($list as $entity){
 				if(/*!$entity->canCollideWith($this) or */
-				($entity === $this->shootingEntity and $this->ticksLived < 5)
+				($entity === $this->shootingEntity && $this->ticksLived < 5)
 				){
 					continue;
 				}
@@ -164,7 +152,7 @@ abstract class Projectile extends Entity {
 					$motion = sqrt($this->motionX ** 2 + $this->motionY ** 2 + $this->motionZ ** 2);
 					$damage = ceil($motion * $this->damage);
 
-					if($this instanceof Arrow and $this->isCritical()){
+					if($this instanceof Arrow && $this->isCritical()){
 						$damage += mt_rand(0, (int) ($damage / 2) + 1);
 					}
 
@@ -175,7 +163,7 @@ abstract class Projectile extends Entity {
 					}
 
 					if($movingObjectPosition->entityHit->attack($ev->getFinalDamage(), $ev) === true){
-						if($this instanceof Arrow and $this->getPotionId() != 0){
+						if($this instanceof Arrow && $this->getPotionId() != 0){
 							foreach(Potion::getEffectsById($this->getPotionId() - 1) as $effect){
 								$movingObjectPosition->entityHit->addEffect($effect->setDuration($effect->getDuration() / 8));
 							}
@@ -200,7 +188,16 @@ abstract class Projectile extends Entity {
 
 			$this->move($this->motionX, $this->motionY, $this->motionZ);
 
-			if($this->isCollided and !$this->hadCollision){
+			// 静止箭矢支撑重查：活塞缩回/支撑方块被挖后失支撑，恢复重力防止悬空
+			if($this->hadCollision && $this->isCollided){
+				$support = $this->getLevel()->getCollisionCubes($this, $this->boundingBox->addCoord(0, -0.01, 0), false);
+				if(count($support) === 0){
+					$this->isCollided = false;
+					$this->hadCollision = false;
+				}
+			}
+
+			if($this->isCollided && !$this->hadCollision){
 				$this->hadCollision = true;
 
 				$this->motionX = 0;
@@ -208,11 +205,11 @@ abstract class Projectile extends Entity {
 				$this->motionZ = 0;
 
 				$this->server->getPluginManager()->callEvent(new ProjectileHitEvent($this));
-			}elseif(!$this->isCollided and $this->hadCollision){
+			}elseif(!$this->isCollided && $this->hadCollision){
 				$this->hadCollision = false;
 			}
 
-			if(!$this->onGround or abs($this->motionX) > 0.00001 or abs($this->motionY) > 0.00001 or abs($this->motionZ) > 0.00001){
+			if(!$this->onGround || abs($this->motionX) > 0.00001 || abs($this->motionY) > 0.00001 || abs($this->motionZ) > 0.00001){
 				$f = sqrt(($this->motionX ** 2) + ($this->motionZ ** 2));
 				$this->yaw = (atan2($this->motionX, $this->motionZ) * 180 / M_PI);
 				$this->pitch = (atan2($this->motionY, $f) * 180 / M_PI);

@@ -24,6 +24,7 @@ namespace pocketmine\entity;
 
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\ExplosionPrimeEvent;
+use pocketmine\level\AsyncExplosion;
 use pocketmine\level\Explosion;
 use pocketmine\level\Level;
 use pocketmine\nbt\tag\ByteTag;
@@ -162,13 +163,14 @@ class PrimedTNT extends Entity implements Explosive {
 	public function explode(){
 		$this->server->getPluginManager()->callEvent($ev = new ExplosionPrimeEvent($this, 4, $this->dropItem));
 
-		if(!$ev->isCancelled()){
+		/*if(!$ev->isCancelled()){
 			$explosion = new Explosion($this, $ev->getForce(), $this, $ev->dropItem());
 			if($ev->isBlockBreaking()){
 				$explosion->explodeA();
 			}
 			$explosion->explodeB();
-		}
+		}*/
+		$this->server->getScheduler()->scheduleAsyncTask(new AsyncExplosion($this, $ev->getForce(), $this, $ev->dropItem(), $ev->isBlockBreaking()));
 	}
 
 	/**
