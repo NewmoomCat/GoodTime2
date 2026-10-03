@@ -83,7 +83,7 @@ class ExtractPluginCommand extends VanillaCommand {
 			return true;
 		}
 
-		$folderPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysPro" . DIRECTORY_SEPARATOR . $description->getName() . "_v" . $description->getVersion() . "/";
+		$folderPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysGT" . DIRECTORY_SEPARATOR . $description->getName() . "_v" . $description->getVersion() . "/";
 		if(file_exists($folderPath)){
 			$sender->sendMessage("Plugin already exists, overwriting...");
 		}else{
@@ -100,17 +100,6 @@ class ExtractPluginCommand extends VanillaCommand {
 			@mkdir(dirname($folderPath . str_replace($pharPath, "", $path)), 0755, true);
 			file_put_contents($folderPath . str_replace($pharPath, "", $path), file_get_contents($path));
 		}
-		$license = "
-  _____            _               _____           
- / ____|          (_)             |  __ \          
-| |  __  ___ _ __  _ ___ _   _ ___| |__) | __ ___  
-| | |_ |/ _ \ '_ \| / __| | | / __|  ___/ '__/ _ \ 
-| |__| |  __/ | | | \__ \ |_| \__ \ |   | | | (_) |
- \_____|\___|_| |_|_|___/\__, |___/_|   |_|  \___/ 
-                         __/ |                    
-                        |___/         
- ";
-		$sender->sendMessage($license);
 		$sender->sendMessage("Source plugin " . $description->getName() . " v" . $description->getVersion() . " has been created on " . $folderPath);
 		return true;
 	}

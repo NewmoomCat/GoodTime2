@@ -78,7 +78,7 @@ namespace pocketmine {
 
 	const VERSION = "1.1dev";
 	const API_VERSION = "3.0.1";
-	const CODENAME = "LlamaSpit";
+	const CODENAME = "Good Time!";
 	const GENISYS_API_VERSION = '2.0.0';
 
 	/*
@@ -188,40 +188,68 @@ namespace pocketmine {
 	function detect_system_timezone(){
 		switch(Utils::getOS()){
 			case 'win':
-				$regex = '/(UTC)(\+*\-*\d*\d*\:*\d*\d*)/';
+				$keyPath = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation';
 
 				/*
-				 * wmic timezone get Caption
-				 * Get the timezone offset
+				 * Get the timezone offset through the registry
 				 *
 				 * Sample Output var_dump
-				 * array(3) {
-				 *	  [0] =>
-				 *	  string(7) "Caption"
-				 *	  [1] =>
-				 *	  string(20) "(UTC+09:30) Adelaide"
-				 *	  [2] =>
-				 *	  string(0) ""
-				 *	}
+				 * array(13) {
+				 *   [0]=>
+				 *   string(0) ""
+				 *   [1]=>
+				 *   string(71) "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
+				 *   [2]=>
+				 *   string(35) "    Bias    REG_DWORD    0xfffffe20"
+				 *   [3]=>
+				 *   string(43) "    DaylightBias    REG_DWORD    0xffffffc4"
+				 *   [4]=>
+				 *   string(45) "    DaylightName    REG_SZ    @tzres.dll,-571"
+				 *   [5]=>
+				 *   string(67) "    DaylightStart    REG_BINARY    00000000000000000000000000000000"
+				 *   [6]=>
+				 *   string(36) "    StandardBias    REG_DWORD    0x0"
+				 *   [7]=>
+				 *   string(45) "    StandardName    REG_SZ    @tzres.dll,-572"
+				 *   [8]=>
+				 *   string(67) "    StandardStart    REG_BINARY    00000000000000000000000000000000"
+				 *   [9]=>
+				 *   string(52) "    TimeZoneKeyName    REG_SZ    China Standard Time"
+				 *   [10]=>
+				 *   string(51) "    DynamicDaylightTimeDisabled    REG_DWORD    0x0"
+				 *   [11]=>
+				 *   string(45) "    ActiveTimeBias    REG_DWORD    0xfffffe20"
+				 *   [12]=>
+				 *   string(0) ""
+				 * }
 				 */
-				exec("wmic timezone get Caption", $output);
 
-				$string = trim(implode("\n", $output));
+				exec("reg query " . escapeshellarg($keyPath), $output);
 
-				//Detect the Time Zone string
-				preg_match($regex, $string, $matches);
+				foreach($output as $line){
+					if(preg_match('/ActiveTimeBias\s+REG_DWORD\s+0x([0-9a-fA-F]+)/', $line, $matches) > 0){
+						$offsetMinutes = ((int) hexdec(trim($matches[1]))) << 32 >> 32;
 
-				if(!isset($matches[2])){
-					return false;
+						if($offsetMinutes == 0){
+							return "UTC";
+						}
+
+						$sign = $offsetMinutes <= 0 ? '+' : '-'; //windows timezone + and - are opposite
+						$absMinutes = abs($offsetMinutes);
+						$hours = floor($absMinutes / 60);
+						$minutes = $absMinutes % 60;
+
+						$offset = sprintf(
+							"%s%02d:%02d",
+							$sign,
+							$hours,
+							$minutes
+						);
+
+						return parse_offset($offset);
+					}
 				}
-
-				$offset = $matches[2];
-
-				if($offset == ""){
-					return "UTC";
-				}
-
-				return parse_offset($offset);
+				return false;
 			case 'linux':
 				// Ubuntu / Debian.
 				if(file_exists('/etc/timezone')){

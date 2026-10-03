@@ -1487,10 +1487,10 @@ class Level implements ChunkManager, Metadatable
      * If $update is true, it'll get the neighbour blocks (6 sides) and update them.
      * If you are doing big changes, you might want to set this to false, then update manually.
      *
-     * @param Vector3 $pos
-     * @param Block $block
-     * @param bool $direct @deprecated
-     * @param bool $update
+     * @param Vector3   $pos
+     * @param Block     $block
+     * @param bool|null $direct
+     * @param bool      $update
      *
      * @return bool Whether the block has been updated or not
      */

@@ -70,7 +70,7 @@ abstract class VanillaCommand extends Command {
 	 * @return float|int
 	 */
 	protected function getRelativeDouble($original, CommandSender $sender, $input, $min = self::MIN_COORD, $max = self::MAX_COORD){
-		if($input{0} === "~"){
+		if($input[0] === "~"){
 			$value = $this->getDouble($sender, substr($input, 1));
 
 			return $original + $value;
@@ -88,7 +88,7 @@ abstract class VanillaCommand extends Command {
 	 * @return float|int
 	 */
 	protected function getDouble(CommandSender $sender, $value, $min = self::MIN_COORD, $max = self::MAX_COORD){
-		$i = (double) $value;
+		$i = (float) $value;
 
 		if($i < $min){
 			$i = $min;

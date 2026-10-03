@@ -30,6 +30,7 @@ class VersionString {
 	private $build;
 	private $minor;
 	private $development = false;
+	private $generation;
 
 	/**
 	 * VersionString constructor.

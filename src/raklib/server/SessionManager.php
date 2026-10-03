@@ -71,6 +71,7 @@ class SessionManager{
 
 	protected $block = [];
 	protected $ipSec = [];
+	protected $serverId;
 
 	public $portChecking = true;
 
@@ -155,6 +156,7 @@ class SessionManager{
 
 
 	private function receivePacket(){
+		$buffer = $source = $port = null;
 		$len = $this->socket->readPacket($buffer, $source, $port);
 		if($buffer !== null){
 			$this->receiveBytes += $len;
@@ -169,7 +171,7 @@ class SessionManager{
 			}
 
 			if($len > 0){
-				$pid = ord($buffer{0});
+				$pid = ord($buffer[0]);
 
 				if($pid === UNCONNECTED_PING::$ID){
 					//No need to create a session for just pings
@@ -254,21 +256,21 @@ class SessionManager{
 
 	public function receiveStream(){
 		if(strlen($packet = $this->server->readMainToThreadPacket()) > 0){
-			$id = ord($packet{0});
+			$id = ord($packet[0]);
 			$offset = 1;
 			if($id === RakLib::PACKET_ENCAPSULATED){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$identifier = substr($packet, $offset, $len);
 				$offset += $len;
 				if(isset($this->sessions[$identifier])){
-					$flags = ord($packet{$offset++});
+					$flags = ord($packet[$offset++]);
 					$buffer = substr($packet, $offset);
 					$this->sessions[$identifier]->addEncapsulatedToQueue(EncapsulatedPacket::fromBinary($buffer, true), $flags);
 				}else{
 					$this->streamInvalid($identifier);
 				}
 			}elseif($id === RakLib::PACKET_RAW){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$address = substr($packet, $offset, $len);
 				$offset += $len;
 				$port = Binary::readShort(substr($packet, $offset, 2));
@@ -276,7 +278,7 @@ class SessionManager{
 				$payload = substr($packet, $offset);
 				$this->socket->writePacket($payload, $address, $port);
 			}elseif($id === RakLib::PACKET_CLOSE_SESSION){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$identifier = substr($packet, $offset, $len);
 				if(isset($this->sessions[$identifier])){
 					$this->removeSession($this->sessions[$identifier]);
@@ -284,13 +286,13 @@ class SessionManager{
 					$this->streamInvalid($identifier);
 				}
 			}elseif($id === RakLib::PACKET_INVALID_SESSION){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$identifier = substr($packet, $offset, $len);
 				if(isset($this->sessions[$identifier])){
 					$this->removeSession($this->sessions[$identifier]);
 				}
 			}elseif($id === RakLib::PACKET_SET_OPTION){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$name = substr($packet, $offset, $len);
 				$offset += $len;
 				$value = substr($packet, $offset);
@@ -306,13 +308,13 @@ class SessionManager{
 						break;
 				}
 			}elseif($id === RakLib::PACKET_BLOCK_ADDRESS){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$address = substr($packet, $offset, $len);
 				$offset += $len;
 				$timeout = Binary::readInt(substr($packet, $offset, 4));
 				$this->blockAddress($address, $timeout);
 			}elseif($id === RakLib::PACKET_UNBLOCK_ADDRESS){
-				$len = ord($packet{$offset++});
+				$len = ord($packet[$offset++]);
 				$address = substr($packet, $offset, $len);
 				$offset += $len;
 				$this->unblockAddress($address);

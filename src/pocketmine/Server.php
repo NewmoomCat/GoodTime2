@@ -321,7 +321,7 @@ class Server{
 	 * @return string
 	 */
 	public function getName() : string{
-        return "GenisysPro";
+        return "GenisysGT";
 	}
 
 	/**
@@ -1521,26 +1521,15 @@ class Server{
 	}
 
 	public function about(){
-	 $version = implode(",",ProtocolInfo::MINECRAFT_VERSION);
+		$version = implode(",",ProtocolInfo::MINECRAFT_VERSION);
 		$string = "
 
-  _____            _               _____
- / ____|          (_)             |  __ \
-| |  __  ___ _ __  _ ___ _   _ ___| |__) | __ ___
-| | |_ |/ _ \ '_ \| / __| | | / __|  ___/ '__/ _ \
-| |__| |  __/ | | | \__ \ |_| \__ \ |   | | | (_) |
- \_____|\___|_| |_|_|___/\__, |___/_|   |_|  \___/
-                          __/ |
-                         |___/
-
-	Version: §6" . $this->getPocketMineVersion() . ' (' . $this->getShortGitCommit() . ')§f
+	Version: §b" . $this->getPocketMineVersion() . '§f (hash: §b' . $this->getShortGitCommit() . '§f) (codename: §b' . $this->getCodename() . '§f)
 	Client Version: §b' . $version . '§f
-	PHP Version: §e' . PHP_VERSION . '§f
-	OS: §6' . PHP_OS .'§f
-	This core is maintained by §dGenisysPro§f (https://github.com/GenisysPro)
-	Discord Group chat: §ehttps://discord.gg/WrKzRNn §f
-	Chatroom on QQ: §a559301590 §f
-	Welcome to donate us on QQ: §c1912003473
+	PHP Version: §b' . PHP_VERSION . '§f
+	OS: §b' . PHP_OS .'§f
+	This core is maintained by §bGenisysPro§f (https://github.com/GenisysPro)
+	Discord Group chat: §bhttps://discord.gg/WrKzRNn §f
 	';
 
 		$this->getLogger()->info($string);
@@ -2420,8 +2409,8 @@ class Server{
 
 		$this->logger->info($this->getLanguage()->translateString("pocketmine.server.startFinished", [round(microtime(true) - \pocketmine\START_TIME, 3)]));
 
-		if(!file_exists($this->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysPro"))
-			@mkdir($this->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysPro");
+		if(!file_exists($this->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysGT"))
+			@mkdir($this->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysGT");
 
 		$this->tickProcessor();
 		$this->forceShutdown();

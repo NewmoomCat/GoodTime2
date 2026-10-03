@@ -57,7 +57,7 @@ class MakeServerCommand extends VanillaCommand {
 		}
 
 		$server = $sender->getServer();
-		$pharPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysPro" . DIRECTORY_SEPARATOR . $server->getName() . "_" . $server->getPocketMineVersion() . "_" . date("Y-m-d") . ".phar";
+		$pharPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysGT" . DIRECTORY_SEPARATOR . $server->getName() . "_" . $server->getPocketMineVersion() . "_" . date("Y-m-d") . ".phar";
 		if(file_exists($pharPath)){
 			$sender->sendMessage("Phar file already exists, overwriting...");
 			@unlink($pharPath);
@@ -90,31 +90,15 @@ class MakeServerCommand extends VanillaCommand {
 		}
 		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath . "src")) as $file){
 			$path = ltrim(str_replace(["\\", $filePath], ["/", ""], $file), "/");
-			if($path{0} === "." or strpos($path, "/.") !== false or substr($path, 0, 4) !== "src/"){
+			if($path[0] === "." or strpos($path, "/.") !== false or substr($path, 0, 4) !== "src/"){
 				continue;
 			}
 			$phar->addFile($file, $path);
 			$sender->sendMessage("[GenisysPro] Adding $path");
 		}
-		foreach($phar as $file => $finfo){
-			/** @var \PharFileInfo $finfo */
-			if($finfo->getSize() > (1024 * 512)){
-				$finfo->compress(\Phar::GZ);
-			}
-		}
+		
+		$phar->compressFiles(\Phar::GZ);
 		$phar->stopBuffering();
-
-		$license = "
-  _____            _               _____           
- / ____|          (_)             |  __ \          
-| |  __  ___ _ __  _ ___ _   _ ___| |__) | __ ___  
-| | |_ |/ _ \ '_ \| / __| | | / __|  ___/ '__/ _ \ 
-| |__| |  __/ | | | \__ \ |_| \__ \ |   | | | (_) |
- \_____|\___|_| |_|_|___/\__, |___/_|   |_|  \___/ 
-                         __/ |                    
-                        |___/         
- ";
-		$sender->sendMessage($license);
 		$sender->sendMessage($server->getName() . " " . $server->getPocketMineVersion() . " Phar file has been created on " . $pharPath);
 
 		return true;

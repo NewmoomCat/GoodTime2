@@ -146,11 +146,11 @@ class SummonCommand extends VanillaCommand {
 				new DoubleTag("", 0)
 			]),
 			"Rotation" => new ListTag("Rotation", [
-				new FloatTag("", lcg_value() * 360),
+				new FloatTag("", mt_rand(0, 359)),
 				new FloatTag("", 0)
 			]),
 		]);
-		if(count($args) == 5 and $args[4]{0} == "{"){//Tags are found
+		if(count($args) == 5 and $args[4][0] == "{"){//Tags are found
 			$nbtExtra = NBT::parseJSON($args[4]);
 			$nbt = NBT::combineCompoundTags($nbt, $nbtExtra, true);
 		}

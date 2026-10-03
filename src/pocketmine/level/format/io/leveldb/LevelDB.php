@@ -234,7 +234,7 @@ class LevelDB extends BaseLevelProvider {
 			}
 		}
 
-		$db->close();
+		unset($db);
 
 	}
 
@@ -648,8 +648,6 @@ class LevelDB extends BaseLevelProvider {
 	}
 
 	public function close(){
-		$this->unloadChunks();
-		$this->db->close();
-		$this->level = null;
+		unset($this->db);
 	}
 }

@@ -77,7 +77,7 @@ class MakePluginCommand extends VanillaCommand {
 			return true;
 		}
 
-		$pharPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysPro" . DIRECTORY_SEPARATOR . $description->getName() . "_v" . $description->getVersion() . "_" . date("Y-m-d") . ".phar";
+		$pharPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "GenisysGT" . DIRECTORY_SEPARATOR . $description->getName() . "_v" . $description->getVersion() . "_" . date("Y-m-d") . ".phar";
 		if(file_exists($pharPath)){
 			$sender->sendMessage("Phar plugin already exists, overwriting...");
 			@unlink($pharPath);
@@ -97,7 +97,7 @@ class MakePluginCommand extends VanillaCommand {
 		if($description->getName() === "DevTools"){
 			$phar->setStub('<?php require("phar://". __FILE__ ."/src/DevTools/ConsoleScript.php"); __HALT_COMPILER();');
 		}else{
-			$phar->setStub('<?php echo "PocketMine-iTX plugin ' . $description->getName() . ' v' . $description->getVersion() . '\nThis file has been generated using GenisysPro at ' . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
+			$phar->setStub('<?php echo "GenisysPro plugin ' . $description->getName() . ' v' . $description->getVersion() . '\nThis file has been generated using GenisysPro at ' . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
 		}
 		$phar->setSignatureAlgorithm(\Phar::SHA1);
 		$reflection = new \ReflectionClass("pocketmine\\plugin\\PluginBase");
@@ -107,31 +107,15 @@ class MakePluginCommand extends VanillaCommand {
 		$phar->startBuffering();
 		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $file){
 			$path = ltrim(str_replace(["\\", $filePath], ["/", ""], $file), "/");
-			if($path{0} === "." or strpos($path, "/.") !== false){
+			if($path[0] === "." or strpos($path, "/.") !== false){
 				continue;
 			}
 			$phar->addFile($file, $path);
 			$sender->sendMessage("[GenisysPro] Adding $path");
 		}
 
-		foreach($phar as $file => $finfo){
-			/** @var \PharFileInfo $finfo */
-			if($finfo->getSize() > (1024 * 512)){
-				$finfo->compress(\Phar::GZ);
-			}
-		}
+		$phar->compressFiles(\Phar::GZ);
 		$phar->stopBuffering();
-		$license = "
-  _____            _               _____           
- / ____|          (_)             |  __ \          
-| |  __  ___ _ __  _ ___ _   _ ___| |__) | __ ___  
-| | |_ |/ _ \ '_ \| / __| | | / __|  ___/ '__/ _ \ 
-| |__| |  __/ | | | \__ \ |_| \__ \ |   | | | (_) |
- \_____|\___|_| |_|_|___/\__, |___/_|   |_|  \___/ 
-                         __/ |                    
-                        |___/         
- ";
-		$sender->sendMessage($license);
 		$sender->sendMessage("Phar plugin " . $description->getName() . " v" . $description->getVersion() . " has been created on " . $pharPath);
 		return true;
 	}

@@ -100,7 +100,7 @@ class Utils {
 		}elseif($os === "android"){
 			$machine .= @file_get_contents("/system/build.prop");
 		}elseif($os === "mac"){
-			$machine .= `system_profiler SPHardwareDataType | grep UUID`;
+			$machine .= shell_exec("system_profiler SPHardwareDataType | grep UUID");
 		}
 		$data = $machine . PHP_MAXPATHLEN;
 		$data .= PHP_INT_MAX;
@@ -306,8 +306,8 @@ class Utils {
 				break;
 			case "bsd":
 			case "mac":
-				$processors = (int) `sysctl -n hw.ncpu`;
-				$processors = (int) `sysctl -n hw.ncpu`;
+				$processors = (int) shell_exec("sysctl -n hw.ncpu");
+				$processors = (int) shell_exec("sysctl -n hw.ncpu");
 				break;
 			case "win":
 				$processors = (int) getenv("NUMBER_OF_PROCESSORS");
@@ -436,7 +436,7 @@ class Utils {
 	public static function javaStringHash($string){
 		$hash = 0;
 		for($i = 0; $i < strlen($string); $i++){
-			$ord = ord($string{$i});
+			$ord = ord($string[$i]);
 			if($ord & 0x80){
 				$ord -= 0x100;
 			}
