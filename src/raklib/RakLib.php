@@ -25,6 +25,9 @@ abstract class RakLib{
 
 	const FLAG_NEED_ACK = 0b00001000;
 
+	const PACKET_PING = 0x0a;
+
+
 	/*
 	 * Internal Packet:
 	 * int32 (length without this field)

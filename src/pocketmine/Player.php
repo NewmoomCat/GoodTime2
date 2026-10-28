@@ -293,6 +293,17 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 	/** @var int */
 	protected $lastEnderPearlUse = 0;
 
+	/** @var string|int */
+	protected $ping = 0;
+
+	public function getPing() {
+		return $this->ping;
+	}
+
+	public function setPing($ping) {
+		$this->ping = $ping;
+	}
+
 	/**
 	 * @param FishingHook $entity
 	 *

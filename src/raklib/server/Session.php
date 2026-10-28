@@ -96,6 +96,7 @@ class Session{
 	private $reliableWindowEnd;
 	private $reliableWindow = [];
 	private $lastReliableIndex = -1;
+	private $pingAverage = [0.025];
 
 	public function __construct(SessionManager $sessionManager, $address, $port){
 		$this->sessionManager = $sessionManager;
@@ -115,6 +116,8 @@ class Session{
 			$this->channelIndex[$i] = 0;
 		}
 	}
+
+	
 
 	public function getAddress(){
 		return $this->address;
@@ -527,6 +530,10 @@ class Session{
 				}
 			}
 		}
+	}
+
+	public function getPing(){
+		return round((array_sum($this->pingAverage) / count($this->pingAverage)) * 1000);
 	}
 
 	public function close(){

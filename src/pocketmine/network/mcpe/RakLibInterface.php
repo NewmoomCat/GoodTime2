@@ -118,6 +118,12 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
 		}
 	}
 
+	public function handlePing($identifier, $ping){
+		if(isset($this->players[$identifier])){
+			$this->players[$identifier]->setPing($ping);
+		}
+	}
+
 	/**
 	 * @param Player $player
 	 * @param string $reason
