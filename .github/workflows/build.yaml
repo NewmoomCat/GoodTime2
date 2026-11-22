@@ -1,0 +1,36 @@
+name: build
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+    build:
+        name: Build Phar
+        runs-on: ubuntu-24.04
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Setup PHP
+              uses: MaoMaoPE/setup-php-action@3.2.1
+              with:
+                php-version: '8.0'
+                install-path: './bin'
+                pm-version-major: '4'
+
+            - name: Run Build
+              shell: bash
+              run: sh ./ci/build.sh --genisysgt
+
+            - name: Rename phar file
+              run: mv plugins/GenisysGT/GenisysGT*.phar plugins/GenisysGT/PocketMine-MP.phar
+
+            - name: Upload Phar
+              uses: actions/upload-artifact@v7
+              with:
+                name: PocketMine-MP.phar
+                path: ./plugins/GenisysGT/PocketMine-MP.phar
+                archive: 'false'
+                if-no-files-found: 'error'
