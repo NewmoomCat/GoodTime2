@@ -743,7 +743,6 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 		}
 
 		$this->sendCommandData();
-		//$this->nSendCommandData()
 
 	}
 
@@ -758,33 +757,20 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 		$data = new \stdClass();
 		$count = 0;
 		foreach($this->server->getCommandMap()->getCommands() as $command){
-			//if($this->hasPermission($command->getPermission()) or $command->getPermission() == null) {
-				if (($cmdData = $command->generateCustomCommandData($this)) !== null){
-					++$count;
-					$data->{$command->getName()}->versions[0] = $cmdData;
+			if(($cmdData = $command->generateCustomCommandData($this)) !== null){
+				++$count;
+				if(!isset($data->{$command->getName()})){
+					$data->{$command->getName()} = new \stdClass();
 				}
-			//}
+				if(!isset($data->{$command->getName()}->versions)){
+					$data->{$command->getName()}->versions = [];
+				}
+				$data->{$command->getName()}->versions[0] = $cmdData;
+			}
 		}
 
 		if($count > 0){
 			//TODO: structure checking
-			$pk = new AvailableCommandsPacket();
-			$pk->commands = json_encode($data);
-			$this->dataPacket($pk);
-		}
-	}
-
-	public function nSendCommandData() {
-		$data = [];
-		$count = 0;
-		foreach($this->server->getCommandMap()->getCommands() as $command){
-			if (($cmdData = $command->generateCustomCommandData($this)) !== null) {
-				++$count;
-				$data[$command->getName()]["versions"][0] = $cmdData;
-			}
-		}
-
-		if ($count > 0) {
 			$pk = new AvailableCommandsPacket();
 			$pk->commands = json_encode($data);
 			$this->dataPacket($pk);
@@ -2366,8 +2352,7 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 		}
 
 		$this->sendCommandData();
-		//$this->nSendCommandData()
-
+		
 		$this->level->getWeather()->sendWeather($this);
 		$this->forceMovement = $this->teleportPosition = $this->getPosition();
 	}
