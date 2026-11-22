@@ -16,6 +16,7 @@ resource_packs/*
 
 # Common IDEs
 .idea/
+.vscode/
 nbproject/*
 
 # Windows image file caches
