@@ -426,7 +426,7 @@ namespace pocketmine {
 	$errors = 0;
 
 	if(php_sapi_name() !== "cli"){
-		$logger->critical("You must run GenisysPro using the CLI.");
+		$logger->critical("You must run GenisysGT using the CLI.");
 		++$errors;
 	}
 
@@ -450,16 +450,16 @@ namespace pocketmine {
 
 	if(extension_loaded("pocketmine")){
 		if(version_compare(phpversion("pocketmine"), "0.0.1") < 0){
-			$logger->critical("You have the native GenisysPro extension, but your version is lower than 0.0.1.");
+			$logger->critical("You have the native GenisysGT extension, but your version is lower than 0.0.1.");
 			++$errors;
 		}elseif(version_compare(phpversion("pocketmine"), "0.0.4") > 0){
-			$logger->critical("You have the native GenisysPro extension, but your version is higher than 0.0.4.");
+			$logger->critical("You have the native GenisysGT extension, but your version is higher than 0.0.4.");
 			++$errors;
 		}
 	}
 
 	if(extension_loaded("xdebug")){
-		$logger->warning("You are running GenisysPro with Xdebug enabled. This has a major impact on performance.");
+		$logger->warning("You are running GenisysGT with Xdebug enabled. This has a major impact on performance.");
 	}
 
 	if(!extension_loaded("curl")){
@@ -513,7 +513,7 @@ namespace pocketmine {
 	}
 
 	if(\Phar::running(true) === ""){
-		$logger->warning("Non-packaged GenisysPro installation detected, do not use on production.");
+		$logger->warning("Non-packaged GenisysGT installation detected, do not use on production.");
 	}
 
 	ThreadManager::init();
