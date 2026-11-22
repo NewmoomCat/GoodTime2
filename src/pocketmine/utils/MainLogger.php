@@ -255,11 +255,11 @@ class MainLogger extends \AttachableThreadedLogger {
 
 		$thread = \Thread::getCurrentThread();
 		if($thread === null){
-			$threadName = "Server thread";
+			$threadName = "Server";
 		}elseif($thread instanceof Thread or $thread instanceof Worker){
-			$threadName = $thread->getThreadName() . " thread";
+			$threadName = strtoupper($thread->getThreadName());
 		}else{
-			$threadName = (new \ReflectionClass($thread))->getShortName() . " thread";
+			$threadName = strtoupper((new \ReflectionClass($thread))->getShortName());
 		}
 
 		if($this->shouldRecordMsg){
@@ -270,7 +270,7 @@ class MainLogger extends \AttachableThreadedLogger {
 			}
 		}
 
-		$message = TextFormat::toANSI(TextFormat::AQUA . "[" . date("H:i:s", $now) . "] " . TextFormat::RESET . $color . "[" . $threadName . "/" . $prefix . "]:" . " " . $message . TextFormat::RESET);
+		$message = TextFormat::toANSI(TextFormat::AQUA . date("H:i:s", $now) . " " . TextFormat::RESET . $color . "[" . $threadName . "/" . $prefix . "]:" . " " . $message . TextFormat::RESET);
 		//$message = TextFormat::toANSI(TextFormat::AQUA . "[GenisysPro]->[" . date("H:i:s", $now) . "] " . TextFormat::RESET . $color . "[$prefix]:" . " " . $message . TextFormat::RESET);
 		//$message = TextFormat::toANSI(TextFormat::AQUA . "[" . date("H:i:s") . "] ". TextFormat::RESET . $color ."<".$prefix . ">" . " " . $message . TextFormat::RESET);
 		$cleanMessage = TextFormat::clean($message);

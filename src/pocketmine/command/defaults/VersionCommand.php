@@ -56,27 +56,16 @@ class VersionCommand extends VanillaCommand {
 			return \true;
 		}
 
-		if(\count($args) === 0){
-			$sender->sendMessage(new TranslationContainer("pocketmine.server.info.extended.title"));
-			$sender->sendMessage(new TranslationContainer("pocketmine.server.info.extended1", [
-				$sender->getServer()->getName(),
-				$sender->getServer()->getFormattedVersion("-"),
-				$sender->getServer()->getShortGitCommit(),
-				$sender->getServer()->getCodename()
-			]));
-			$sender->sendMessage(new TranslationContainer("pocketmine.server.info.extended2", [
-				phpversion()
-			]));
-			$sender->sendMessage(new TranslationContainer("pocketmine.server.info.extended3", [
-				$sender->getServer()->getApiVersion()
+		$name = TextFormat::AQUA . $sender->getServer()->getName() . TextFormat::WHITE;
+		$version = TextFormat::AQUA . $sender->getServer()->getPocketMineVersion();
+		$mc = ProtocolInfo::MINECRAFT_VERSION_NETWORK;
+		$protocol = ProtocolInfo::CURRENT_PROTOCOL;
+		$codename = TextFormat::AQUA . "\"" . $sender->getServer()->getCodename() . "\"" . TextFormat::WHITE;
+		$gitHash = $sender->getServer()->getShortGitCommit();
 
-			]));
-			$sender->sendMessage(new TranslationContainer("pocketmine.server.info.extended4", [
-				$sender->getServer()->getVersion()
-			]));
-			$sender->sendMessage(new TranslationContainer("pocketmine.server.info.extended5", [
-				ProtocolInfo::CURRENT_PROTOCOL
-			]));
+		if(\count($args) === 0){
+			$sender->sendMessage("This server is running {$name} version {$version} (MCPE: {$mc}) ");
+			$sender->sendMessage("This server's codename {$codename} and protocol {$protocol} (Hash: {$gitHash})");
 		}else{
 			$pluginName = \implode(" ", $args);
 			$exactPlugin = $sender->getServer()->getPluginManager()->getPlugin($pluginName);
