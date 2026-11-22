@@ -111,7 +111,7 @@ class MakePluginCommand extends VanillaCommand {
 				continue;
 			}
 			$phar->addFile($file, $path);
-			$sender->sendMessage("[GenisysPro] Adding $path");
+			$sender->sendMessage("[GenisysGT] Adding $path");
 		}
 
 		$phar->compressFiles(\Phar::GZ);

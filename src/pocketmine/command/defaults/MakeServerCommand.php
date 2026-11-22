@@ -85,7 +85,7 @@ class MakeServerCommand extends VanillaCommand {
 					continue;
 				}
 				$phar->addFile($file, $path);
-				$sender->sendMessage("[GenisysPro] Adding $path");
+				$sender->sendMessage("[GenisysGT] Adding $path");
 			}
 		}
 		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath . "src")) as $file){
@@ -94,7 +94,7 @@ class MakeServerCommand extends VanillaCommand {
 				continue;
 			}
 			$phar->addFile($file, $path);
-			$sender->sendMessage("[GenisysPro] Adding $path");
+			$sender->sendMessage("[GenisysGT] Adding $path");
 		}
 		
 		$phar->compressFiles(\Phar::GZ);
