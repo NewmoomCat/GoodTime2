@@ -218,7 +218,20 @@ class Server{
 	private $network;
 
 	private $networkCompressionAsync = true;
-	public $networkCompressionLevel = 7;
+	public $networkCompressionLevel = 2;
+
+	/**
+	 * Memoises the last synchronous batch compression. Broadcasting the same
+	 * packet to N players calls batchPackets() N times with an identical
+	 * payload, so this turns N deflate calls into one.
+	 *
+	 * @var string|null
+	 */
+	private $lastCompressedInput = null;
+	/** @var string|false|null */
+	private $lastCompressedOutput = null;
+	/** @var int */
+	private $lastCompressedLevel = -1;
 
 	private $autoTickRate = true;
 	private $autoTickRateLimit = 20;
@@ -1780,7 +1793,7 @@ class Server{
 			}else{
 				Network::$BATCH_THRESHOLD = -1;
 			}
-			$this->networkCompressionLevel = $this->getProperty("network.compression-level", 7);
+			$this->networkCompressionLevel = $this->getProperty("network.compression-level", 2);
 			$this->networkCompressionAsync = $this->getProperty("network.async-compression", true);
 
 			$this->autoTickRate = (bool) $this->getProperty("level-settings.auto-tick-rate", true);
@@ -2166,7 +2179,22 @@ class Server{
 			$task = new CompressBatchedTask($str, $targets, $this->networkCompressionLevel);
 			$this->getScheduler()->scheduleAsyncTask($task);
 		}else{
-			$this->broadcastPacketsCallback(zlib_encode($str, ZLIB_ENCODING_DEFLATE, $this->networkCompressionLevel), $targets);
+			if($this->networkCompressionLevel === $this->lastCompressedLevel and $str === $this->lastCompressedInput){
+				$compressed = $this->lastCompressedOutput;
+			}else{
+				$compressed = zlib_encode($str, ZLIB_ENCODING_DEFLATE, $this->networkCompressionLevel);
+				//Only memoise small payloads: large ones are sent once per batch anyway.
+				if(strlen($str) <= 2048){
+					$this->lastCompressedInput = $str;
+					$this->lastCompressedOutput = $compressed;
+					$this->lastCompressedLevel = $this->networkCompressionLevel;
+				}else{
+					$this->lastCompressedInput = null;
+					$this->lastCompressedOutput = null;
+					$this->lastCompressedLevel = -1;
+				}
+			}
+			$this->broadcastPacketsCallback($compressed, $targets);
 		}
 
 		Timings::$playerNetworkTimer->stopTiming();

@@ -69,6 +69,7 @@ use pocketmine\inventory\InventoryHolder;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
 use pocketmine\level\format\Chunk;
+use pocketmine\level\format\EmptySubChunk;
 use pocketmine\level\format\io\BaseLevelProvider;
 use pocketmine\level\format\io\LevelProvider;
 use pocketmine\level\generator\GenerationTask;
@@ -1031,10 +1032,12 @@ class Level implements ChunkManager, Metadatable
             Level::getXZ($index, $chunkX, $chunkZ);
 
 
-            if (!isset($this->chunks[$index]) or ($chunk = $this->getChunk($chunkX, $chunkZ, false)) === null) {
+            if (!isset($this->chunks[$index])) {
                 unset($this->chunkTickList[$index]);
                 continue;
-            } elseif ($loaders <= 0) {
+            }
+            $chunk = $this->chunks[$index];
+            if ($loaders <= 0) {
                 unset($this->chunkTickList[$index]);
             }
 
@@ -1044,7 +1047,8 @@ class Level implements ChunkManager, Metadatable
 
 
             foreach ($chunk->getSubChunks() as $Y => $subChunk) {
-                if (!$subChunk->isEmpty()) {
+                //EmptySubChunk::isEmpty() is free; calling SubChunk::isEmpty() would scan 4KB.
+                if (!($subChunk instanceof EmptySubChunk)) {
                     $k = mt_rand(0, 0x7fffffff);
                     for ($i = 0; $i < 3; ++$i, $k >>= 10) {
                         $x = $k & 0x0f;
@@ -1361,21 +1365,32 @@ class Level implements ChunkManager, Metadatable
      * @return Block
      */
     public function getBlock(Vector3 $pos, $cached = true): Block {
-        $pos = $pos->floor();
-        $index = Level::blockHash($pos->x, $pos->y, $pos->z);
+        $x = $pos->x;
+        $y = $pos->y;
+        $z = $pos->z;
+        if (!is_int($x)) {
+            $x = (int) floor($x);
+        }
+        if (!is_int($y)) {
+            $y = (int) floor($y);
+        }
+        if (!is_int($z)) {
+            $z = (int) floor($z);
+        }
+        $index = Level::blockHash($x, $y, $z);
         if ($cached and isset($this->blockCache[$index])) {
             return $this->blockCache[$index];
-        } elseif ($pos->y >= 0 and $pos->y < $this->provider->getWorldHeight() and isset($this->chunks[$chunkIndex = Level::chunkHash($pos->x >> 4, $pos->z >> 4)])) {
-            $fullState = $this->chunks[$chunkIndex]->getFullBlock($pos->x & 0x0f, $pos->y & Level::Y_MASK, $pos->z & 0x0f);
+        } elseif ($y >= 0 and $y < $this->provider->getWorldHeight() and isset($this->chunks[$chunkIndex = Level::chunkHash($x >> 4, $z >> 4)])) {
+            $fullState = $this->chunks[$chunkIndex]->getFullBlock($x & 0x0f, $y & Level::Y_MASK, $z & 0x0f);
         } else {
             $fullState = 0;
         }
 
         $block = clone $this->blockStates[$fullState & 0xfff];
 
-        $block->x = $pos->x;
-        $block->y = $pos->y;
-        $block->z = $pos->z;
+        $block->x = $x;
+        $block->y = $y;
+        $block->z = $z;
         $block->level = $this;
 
         return $this->blockCache[$index] = $block;

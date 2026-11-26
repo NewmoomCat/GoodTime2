@@ -205,16 +205,18 @@ abstract class Timings {
 	 * @return TimingsHandler
 	 */
 	public static function getEntityTimings(Entity $entity){
-		$entityType = (new \ReflectionClass($entity))->getShortName();
-		if(!isset(self::$entityTypeTimingMap[$entityType])){
+		$class = get_class($entity);
+		if(!isset(self::$entityTypeTimingMap[$class])){
+			$pos = strrpos($class, "\\");
+			$entityType = $pos === false ? $class : substr($class, $pos + 1);
 			if($entity instanceof Player){
-				self::$entityTypeTimingMap[$entityType] = new TimingsHandler("** tickEntity - EntityPlayer", self::$tickEntityTimer);
+				self::$entityTypeTimingMap[$class] = new TimingsHandler("** tickEntity - EntityPlayer", self::$tickEntityTimer);
 			}else{
-				self::$entityTypeTimingMap[$entityType] = new TimingsHandler("** tickEntity - " . $entityType, self::$tickEntityTimer);
+				self::$entityTypeTimingMap[$class] = new TimingsHandler("** tickEntity - " . $entityType, self::$tickEntityTimer);
 			}
 		}
 
-		return self::$entityTypeTimingMap[$entityType];
+		return self::$entityTypeTimingMap[$class];
 	}
 
 	/**
@@ -223,12 +225,14 @@ abstract class Timings {
 	 * @return TimingsHandler
 	 */
 	public static function getTileEntityTimings(Tile $tile){
-		$tileType = (new \ReflectionClass($tile))->getShortName();
-		if(!isset(self::$tileEntityTypeTimingMap[$tileType])){
-			self::$tileEntityTypeTimingMap[$tileType] = new TimingsHandler("** tickTileEntity - " . $tileType, self::$tickTileEntityTimer);
+		$class = get_class($tile);
+		if(!isset(self::$tileEntityTypeTimingMap[$class])){
+			$pos = strrpos($class, "\\");
+			$tileType = $pos === false ? $class : substr($class, $pos + 1);
+			self::$tileEntityTypeTimingMap[$class] = new TimingsHandler("** tickTileEntity - " . $tileType, self::$tickTileEntityTimer);
 		}
 
-		return self::$tileEntityTypeTimingMap[$tileType];
+		return self::$tileEntityTypeTimingMap[$class];
 	}
 
 	/**

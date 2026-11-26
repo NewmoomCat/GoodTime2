@@ -79,20 +79,21 @@ abstract class LightUpdate
     {
         while (!$this->removalQueue->isEmpty()) {
             list($x, $y, $z, $oldAdjacentLight) = $this->removalQueue->dequeue();
-            $points = [
-                [$x + 1, $y, $z],
-                [$x - 1, $y, $z],
-                [$x, $y + 1, $z],
-                [$x, $y - 1, $z],
-                [$x, $y, $z + 1],
-                [$x, $y, $z - 1]
-            ];
-            foreach ($points as list($cx, $cy, $cz)) {
-                if ($cy < 0) {
-                    continue;
+            if ($y < 0) {
+                //The old code only kept the neighbour above; preserve that for y == -1.
+                if ($y === -1) {
+                    $this->computeRemoveLight($x, 0, $z, $oldAdjacentLight);
                 }
-                $this->computeRemoveLight($cx, $cy, $cz, $oldAdjacentLight);
+                continue;
             }
+            $this->computeRemoveLight($x + 1, $y, $z, $oldAdjacentLight);
+            $this->computeRemoveLight($x - 1, $y, $z, $oldAdjacentLight);
+            $this->computeRemoveLight($x, $y + 1, $z, $oldAdjacentLight);
+            if ($y > 0) {
+                $this->computeRemoveLight($x, $y - 1, $z, $oldAdjacentLight);
+            }
+            $this->computeRemoveLight($x, $y, $z + 1, $oldAdjacentLight);
+            $this->computeRemoveLight($x, $y, $z - 1, $oldAdjacentLight);
         }
         while (!$this->spreadQueue->isEmpty()) {
             list($x, $y, $z) = $this->spreadQueue->dequeue();
@@ -100,20 +101,20 @@ abstract class LightUpdate
             if ($newAdjacentLight <= 0) {
                 continue;
             }
-            $points = [
-                [$x + 1, $y, $z],
-                [$x - 1, $y, $z],
-                [$x, $y + 1, $z],
-                [$x, $y - 1, $z],
-                [$x, $y, $z + 1],
-                [$x, $y, $z - 1]
-            ];
-            foreach ($points as list($cx, $cy, $cz)) {
-                if ($cy < 0) {
-                    continue;
+            if ($y < 0) {
+                if ($y === -1) {
+                    $this->computeSpreadLight($x, 0, $z, $newAdjacentLight);
                 }
-                $this->computeSpreadLight($cx, $cy, $cz, $newAdjacentLight);
+                continue;
             }
+            $this->computeSpreadLight($x + 1, $y, $z, $newAdjacentLight);
+            $this->computeSpreadLight($x - 1, $y, $z, $newAdjacentLight);
+            $this->computeSpreadLight($x, $y + 1, $z, $newAdjacentLight);
+            if ($y > 0) {
+                $this->computeSpreadLight($x, $y - 1, $z, $newAdjacentLight);
+            }
+            $this->computeSpreadLight($x, $y, $z + 1, $newAdjacentLight);
+            $this->computeSpreadLight($x, $y, $z - 1, $newAdjacentLight);
         }
     }
 
@@ -122,7 +123,7 @@ abstract class LightUpdate
         $current = $this->getLight($x, $y, $z);
         if ($current !== 0 and $current < $oldAdjacentLevel) {
             $this->setLight($x, $y, $z, 0);
-            if (!isset($visited[$index = Level::blockHash($x, $y, $z)])) {
+            if (!isset($this->removalVisited[$index = Level::blockHash($x, $y, $z)])) {
                 $this->removalVisited[$index] = true;
                 if ($current > 1) {
                     $this->removalQueue->enqueue([$x, $y, $z, $current]);

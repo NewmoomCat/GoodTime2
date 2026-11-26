@@ -1786,7 +1786,7 @@ abstract class Entity extends Location implements Metadatable {
 			$movY = $dy;
 			$movZ = $dz;
 
-			$axisalignedbb = clone $this->boundingBox;
+			$axisalignedbb = $this->stepHeight > 0 ? clone $this->boundingBox : null;
 
 			/*$sneakFlag = $this->onGround and $this instanceof Player;
 
@@ -1957,9 +1957,14 @@ abstract class Entity extends Location implements Metadatable {
 	}
 
 	protected function checkBlockCollision(){
+		$blocksaround = $this->getBlocksAround();
+		if(count($blocksaround) === 0){
+			return;
+		}
+
 		$vector = new Vector3(0, 0, 0);
 
-		foreach($blocksaround = $this->getBlocksAround() as $block){
+		foreach($blocksaround as $block){
 			$block->onEntityCollide($this);
 			$block->addVelocityToEntity($this, $vector);
 		}

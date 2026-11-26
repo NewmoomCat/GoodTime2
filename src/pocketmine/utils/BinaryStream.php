@@ -453,9 +453,10 @@ class BinaryStream extends \stdClass {
 	 * @param $z
 	 */
 	public function getVector3f(&$x, &$y, &$z){
-		$x = $this->getLFloat(4);
-		$y = $this->getLFloat(4);
-		$z = $this->getLFloat(4);
+		$v = unpack("g3", $this->get(12));
+		$x = round($v[1], 4);
+		$y = round($v[2], 4);
+		$z = round($v[3], 4);
 	}
 
 	/**
@@ -464,9 +465,7 @@ class BinaryStream extends \stdClass {
 	 * @param $z
 	 */
 	public function putVector3f($x, $y, $z){
-		$this->putLFloat($x);
-		$this->putLFloat($y);
-		$this->putLFloat($z);
+		$this->buffer .= pack("g3", $x, $y, $z);
 	}
 
 	/**

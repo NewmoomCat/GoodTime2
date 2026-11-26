@@ -157,7 +157,7 @@ class Session{
 			$limit = 16;
 			foreach($this->packetToSend as $k => $pk){
 				$pk->sendTime = $time;
-				$pk->encode();
+				//sendPacket() encodes the packet again, so don't encode it twice.
 				$this->recoveryQueue[$pk->seqNumber] = $pk;
 				unset($this->packetToSend[$k]);
 				$this->sendPacket($pk);
