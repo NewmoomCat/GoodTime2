@@ -68,7 +68,8 @@ abstract class Creature extends Living {
 				$this->updateMovement();
 			}
 		}
-		parent::entityBaseTick();
+		//Entity::onUpdate() already calls entityBaseTick(); calling it here too
+		//made every creature process effects/fire/collision twice per tick.
 		return parent::onUpdate($tick);
 	}
 
