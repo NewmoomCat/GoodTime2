@@ -989,7 +989,7 @@ class Server{
 	 * @param Player $player
 	 */
 	public function removePlayer(Player $player){
-		if(isset($this->identifiers[$hash = spl_object_hash($player)])){
+		if(isset($this->identifiers[$hash = spl_object_id($player)])){
 			$identifier = $this->identifiers[$hash];
 			unset($this->players[$identifier]);
 			unset($this->identifiers[$hash]);
@@ -999,7 +999,7 @@ class Server{
 		foreach($this->players as $identifier => $p){
 			if($player === $p){
 				unset($this->players[$identifier]);
-				unset($this->identifiers[spl_object_hash($player)]);
+				unset($this->identifiers[spl_object_id($player)]);
 				break;
 			}
 		}
@@ -2034,7 +2034,7 @@ class Server{
 
 			foreach($this->pluginManager->getPermissionSubscriptions(self::BROADCAST_CHANNEL_USERS) as $permissible){
 				if($permissible instanceof Player and $permissible->hasPermission(self::BROADCAST_CHANNEL_USERS)){
-					$recipients[spl_object_hash($permissible)] = $permissible; // do not send messages directly, or some might be repeated
+					$recipients[spl_object_id($permissible)] = $permissible; // do not send messages directly, or some might be repeated
 				}
 			}
 		}
@@ -2060,7 +2060,7 @@ class Server{
 
 			foreach($this->pluginManager->getPermissionSubscriptions(self::BROADCAST_CHANNEL_USERS) as $permissible){
 				if($permissible instanceof Player and $permissible->hasPermission(self::BROADCAST_CHANNEL_USERS)){
-					$recipients[spl_object_hash($permissible)] = $permissible; // do not send messages directly, or some might be repeated
+					$recipients[spl_object_id($permissible)] = $permissible; // do not send messages directly, or some might be repeated
 				}
 			}
 		}
@@ -2085,7 +2085,7 @@ class Server{
 		foreach(explode(";", $permissions) as $permission){
 			foreach($this->pluginManager->getPermissionSubscriptions($permission) as $permissible){
 				if($permissible instanceof CommandSender and $permissible->hasPermission($permission)){
-					$recipients[spl_object_hash($permissible)] = $permissible; // do not send messages directly, or some might be repeated
+					$recipients[spl_object_id($permissible)] = $permissible; // do not send messages directly, or some might be repeated
 				}
 			}
 		}
@@ -2113,7 +2113,7 @@ class Server{
 			$recipients = [];
 			foreach($this->pluginManager->getPermissionSubscriptions(self::BROADCAST_CHANNEL_USERS) as $permissible){
 				if($permissible instanceof Player and $permissible->hasPermission(self::BROADCAST_CHANNEL_USERS)){
-					$recipients[spl_object_hash($permissible)] = $permissible; // do not send messages directly, or some might be repeated
+					$recipients[spl_object_id($permissible)] = $permissible; // do not send messages directly, or some might be repeated
 				}
 			}
 		}
@@ -2171,7 +2171,7 @@ class Server{
 		$targets = [];
 		foreach($players as $p){
 			if($p->isConnected()){
-				$targets[] = $this->identifiers[spl_object_hash($p)];
+				$targets[] = $this->identifiers[spl_object_id($p)];
 			}
 		}
 
@@ -2581,7 +2581,7 @@ class Server{
 
 	public function addPlayer($identifier, Player $player){
 		$this->players[$identifier] = $player;
-		$this->identifiers[spl_object_hash($player)] = $identifier;
+		$this->identifiers[spl_object_id($player)] = $identifier;
 	}
 
 	public function addOnlinePlayer(Player $player){

@@ -134,6 +134,18 @@ abstract class BaseInventory implements Inventory {
 	}
 
 	/**
+	 * Returns the stored item without cloning it, or null for an empty slot.
+	 * Read-only: callers must not modify the returned Item.
+	 *
+	 * @param int $index
+	 *
+	 * @return Item|null
+	 */
+	public function getItemOrNull($index){
+		return isset($this->slots[$index]) ? $this->slots[$index] : null;
+	}
+
+	/**
 	 * @return Item[]
 	 */
 	public function getContents(){

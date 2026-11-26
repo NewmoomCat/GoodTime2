@@ -1431,14 +1431,14 @@ class Level implements ChunkManager, Metadatable
     }
 
     public function getHighestAdjacentBlockLight(int $x, int $y, int $z): int {
-        return max([
+        return max(
             $this->getBlockLightAt($x + 1, $y, $z),
             $this->getBlockLightAt($x - 1, $y, $z),
             $this->getBlockLightAt($x, $y + 1, $z),
             $this->getBlockLightAt($x, $y - 1, $z),
             $this->getBlockLightAt($x, $y, $z + 1),
             $this->getBlockLightAt($x, $y, $z - 1)
-        ]);
+        );
     }
 
 

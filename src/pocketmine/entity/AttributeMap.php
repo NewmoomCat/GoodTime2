@@ -52,9 +52,14 @@ class AttributeMap implements \ArrayAccess {
 	 * @return Attribute[]
 	 */
 	public function needSend() : array{
-		return array_filter($this->attributes, function(Attribute $attribute){
-			return $attribute->isSyncable() and $attribute->isDesynchronized();
-		});
+		$result = [];
+		foreach($this->attributes as $attribute){
+			if($attribute->isSyncable() and $attribute->isDesynchronized()){
+				$result[] = $attribute;
+			}
+		}
+
+		return $result;
 	}
 
 	/**

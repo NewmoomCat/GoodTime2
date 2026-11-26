@@ -65,6 +65,13 @@ namespace {
 	function dummy(){
 
 	}
+
+	//PHP 7.2+ has spl_object_id(); the player lookup maps use it on the hot path.
+	if(!function_exists("spl_object_id")){
+		function spl_object_id($object){
+			return crc32(spl_object_hash($object));
+		}
+	}
 }
 
 namespace pocketmine {

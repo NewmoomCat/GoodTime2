@@ -170,6 +170,11 @@ class BaseLang {
 	 * @return string
 	 */
 	protected function parseTranslation($text, $onlyPrefix = null){
+		//Fast path: without a '%' the loop below is a byte-for-byte copy.
+		if(strpos($text, "%") === false){
+			return $text;
+		}
+
 		$newString = "";
 
 		$replaceString = null;

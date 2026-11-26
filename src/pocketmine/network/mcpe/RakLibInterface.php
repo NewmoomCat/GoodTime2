@@ -111,7 +111,7 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
 	public function closeSession($identifier, $reason){
 		if(isset($this->players[$identifier])){
 			$player = $this->players[$identifier];
-			unset($this->identifiers[spl_object_hash($player)]);
+			unset($this->identifiers[spl_object_id($player)]);
 			unset($this->players[$identifier]);
 			unset($this->identifiersACK[$identifier]);
 			$player->close($player->getLeaveMessage(), $reason);
@@ -129,7 +129,7 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
 	 * @param string $reason
 	 */
 	public function close(Player $player, $reason = "unknown reason"){
-		if(isset($this->identifiers[$h = spl_object_hash($player)])){
+		if(isset($this->identifiers[$h = spl_object_id($player)])){
 			unset($this->players[$this->identifiers[$h]]);
 			unset($this->identifiersACK[$this->identifiers[$h]]);
 			$this->interface->closeSession($this->identifiers[$h], $reason);
@@ -159,7 +159,7 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
 		$player = new $class($this, $ev->getClientId(), $ev->getAddress(), $ev->getPort());
 		$this->players[$identifier] = $player;
 		$this->identifiersACK[$identifier] = 0;
-		$this->identifiers[spl_object_hash($player)] = $identifier;
+		$this->identifiers[spl_object_id($player)] = $identifier;
 		$this->server->addPlayer($identifier, $player);
 	}
 
@@ -284,7 +284,7 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
 	 * @return int|null
 	 */
 	public function putPacket(Player $player, DataPacket $packet, $needACK = false, $immediate = false){
-		if(isset($this->identifiers[$h = spl_object_hash($player)])){
+		if(isset($this->identifiers[$h = spl_object_id($player)])){
 			$identifier = $this->identifiers[$h];
 			if(!$packet->isEncoded){
 				$packet->encode();

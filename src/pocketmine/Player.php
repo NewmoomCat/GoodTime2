@@ -2059,7 +2059,8 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 					}
 					$this->inAirTicks = 0;
 				}else{
-					if($this->getInventory()->getItem($this->getInventory()->getSize() + 1)->getId() == "444"){
+					$chestplate = $this->getInventory()->getItemOrNull($this->getInventory()->getSize() + 1);
+					if($chestplate !== null and $chestplate->getId() === Item::ELYTRA){
 						#enable use of elytra. todo: check if it is open
 						$this->inAirTicks = 0;
 					}
