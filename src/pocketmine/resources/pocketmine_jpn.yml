@@ -129,7 +129,7 @@ chunk-sending:
  #Useful in mostly-static worlds where lots of players join at the same time
  cache-chunks: true
  #Use AsyncTasks for serializing chunks for sending.
- async-chunk-request: false
+ async-chunk-request: true
 
 chunk-ticking:
  #Max amount of chunks processed each tick

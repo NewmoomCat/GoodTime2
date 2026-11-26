@@ -182,8 +182,9 @@ class Session{
 		}
 
 
+		$timeout = time() - 8;
 		foreach($this->recoveryQueue as $seq => $pk){
-			if($pk->sendTime < (time() - 8)){
+			if($pk->sendTime < $timeout){
 				$this->packetToSend[] = $pk;
 				unset($this->recoveryQueue[$seq]);
 			}else{

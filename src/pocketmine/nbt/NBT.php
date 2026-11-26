@@ -661,7 +661,7 @@ class NBT {
 	 * @return int
 	 */
 	public function getByte(){
-		return Binary::readByte($this->get(1));
+		return ord($this->buffer[$this->offset++]);
 	}
 
 	/**

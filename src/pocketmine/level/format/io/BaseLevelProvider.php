@@ -72,7 +72,7 @@ abstract class BaseLevelProvider implements LevelProvider {
 		if(!isset($this->levelData->generatorOptions)){
 			$this->levelData->generatorOptions = new StringTag("generatorOptions", "");
 		}
-		$this->asyncChunkRequest = (bool) $this->level->getServer()->getProperty("chunk-sending.async-chunk-request", false);
+		$this->asyncChunkRequest = (bool) $this->level->getServer()->getProperty("chunk-sending.async-chunk-request", true);
 	}
 
 	/**

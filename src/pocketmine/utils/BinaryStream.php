@@ -383,7 +383,18 @@ class BinaryStream extends \stdClass {
 	 * Reads an unsigned varint32 from the stream.
 	 */
 	public function getUnsignedVarInt(){
-		return Binary::readUnsignedVarInt($this);
+		$value = 0;
+		$i = 0;
+		do{
+			if($i > 63){
+				throw new \InvalidArgumentException("Varint did not terminate after 10 bytes!");
+			}
+			$b = ord($this->buffer[$this->offset++]);
+			$value |= (($b & 0x7f) << $i);
+			$i += 7;
+		}while($b & 0x80);
+
+		return $value;
 	}
 
 	/**
@@ -399,7 +410,11 @@ class BinaryStream extends \stdClass {
 	 * Reads a signed varint32 from the stream.
 	 */
 	public function getVarInt(){
-		return Binary::readVarInt($this);
+		$shift = PHP_INT_SIZE === 8 ? 63 : 31;
+		$raw = $this->getUnsignedVarInt();
+		$temp = ((($raw << $shift) >> $shift) ^ $raw) >> 1;
+
+		return $temp ^ ($raw & (1 << $shift));
 	}
 
 	/**

@@ -870,10 +870,8 @@ class Level implements ChunkManager, Metadatable
         foreach ($this->chunkPackets as $index => $entries) {
             Level::getXZ($index, $chunkX, $chunkZ);
             $chunkPlayers = $this->getChunkPlayers($chunkX, $chunkZ);
-            if (count($chunkPlayers) > 0) {
-                foreach ($entries as $pk) {
-                    $this->server->broadcastPacket($chunkPlayers, $pk);
-                }
+            if (count($chunkPlayers) > 0 and count($entries) > 0) {
+                $this->server->batchPackets($chunkPlayers, $entries, true);
             }
         }
 
@@ -926,6 +924,7 @@ class Level implements ChunkManager, Metadatable
      * @param bool $optimizeRebuilds
      */
     public function sendBlocks(array $target, array $blocks, $flags = UpdateBlockPacket::FLAG_NONE, bool $optimizeRebuilds = false) {
+        $packets = [];
         if ($optimizeRebuilds) {
             $chunks = [];
             foreach ($blocks as $b) {
@@ -953,7 +952,7 @@ class Level implements ChunkManager, Metadatable
                     $pk->blockData = $fullBlock & 0xf;
                 }
                 $pk->flags = $first ? $flags : UpdateBlockPacket::FLAG_NONE;
-                $this->server->broadcastPacket($target, $pk);
+                $packets[] = $pk;
             }
         } else {
             foreach ($blocks as $b) {
@@ -975,8 +974,12 @@ class Level implements ChunkManager, Metadatable
                     $pk->blockData = $fullBlock & 0xf;
                 }
                 $pk->flags = $flags;
-                $this->server->broadcastPacket($target, $pk);
+                $packets[] = $pk;
             }
+        }
+
+        if (count($packets) > 0 and count($target) > 0) {
+            $this->server->batchPackets($target, $packets, true);
         }
     }
 

@@ -129,7 +129,7 @@ chunk-sending:
  #適合在幾乎靜止、但在同一時間有許多玩家加入的世界使用
  cache-chunks: true
  #使用異步處理排序要發送的區塊。
- async-chunk-request: false
+ async-chunk-request: true
 
 chunk-ticking:
  #每遊戲刻處理的區塊數量上限

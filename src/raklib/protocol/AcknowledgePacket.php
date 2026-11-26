@@ -29,8 +29,20 @@ abstract class AcknowledgePacket extends Packet{
 	public function encode(){
 		parent::encode();
 		$payload = "";
-		sort($this->packets, SORT_NUMERIC);
 		$count = count($this->packets);
+		if($count > 1){
+			//The queue is usually appended in ascending order; avoid an O(n log n) sort.
+			$sorted = true;
+			for($i = 1; $i < $count; ++$i){
+				if($this->packets[$i] < $this->packets[$i - 1]){
+					$sorted = false;
+					break;
+				}
+			}
+			if(!$sorted){
+				sort($this->packets, SORT_NUMERIC);
+			}
+		}
 		$records = 0;
 
 		if($count > 0){

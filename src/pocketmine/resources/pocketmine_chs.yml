@@ -129,7 +129,7 @@ chunk-sending:
  #适合在几乎静止、但在同一时间有许多玩家加入的世界使用
  cache-chunks: true
  #使用异步任务排序要发送的区块。
- async-chunk-request: false
+ async-chunk-request: true
 
 chunk-ticking:
  #每游戏刻处理的区块数量上限
